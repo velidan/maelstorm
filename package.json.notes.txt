@@ -1,0 +1,2 @@
+1)  "react-navigation": : "^1.0.0-beta.7" -> an official release and should be replaced from master
+    to this after bug fix with pureMixins  -> https://github.com/react-community/react-navigation/issues/923
