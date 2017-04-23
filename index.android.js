@@ -1,4 +1,4 @@
-import "./bin/App";
+import "./bin/index";
 
 // /**
 //  * Sample React Native App
