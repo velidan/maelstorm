@@ -7,15 +7,22 @@
     "test": "jest"
   },
   "dependencies": {
+     "lodash": "^4.17.4",
+    "moment": "^2.18.1",
     "react": "16.0.0-alpha.6",
-    "react-native": "0.43.3",
+    "react-native": "0.43.4",
     "react-native-form": "^2.1.2",
+	 "react-native-vector-icons": "^4.0.1",
+	 "react-pure-render": "^1.0.2",
+	"react-native-player": "0.0.9",
+	"redux-logger": "^3.0.1",
+    "redux-thunk": "^2.2.0",
     "react-navigation": "git+https://github.com/react-community/react-navigation.git"
   },
   "devDependencies": {
     "babel-jest": "19.0.0",
     "babel-preset-react-native": "1.9.1",
-    "eslint": "^0.11.0-alpha.0",
+    "eslint": "^3.19.0",
     "eslint-plugin-react": "^6.10.3",
     "eslint-plugin-react-native": "^2.3.2",
     "jest": "19.0.2",

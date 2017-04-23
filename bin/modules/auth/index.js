@@ -1,0 +1,1 @@
+export { default as SignInComponent } from "./components/SignIn.component";
