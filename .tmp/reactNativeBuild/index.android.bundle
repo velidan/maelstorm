@@ -59190,6 +59190,8 @@ var _react2 = babelHelpers.interopRequireDefault(_react);
 
 var _reactNative = require(13            ); // 13 = react-native
 
+var Sound = require(529                 ); // 529 = react-native-sound
+
 var Item = _reactNative.Picker.Item;
 
 var genres = {
@@ -59222,6 +59224,23 @@ var HomeModule = function (_Component) {
 
     _this._fetchGenreSet = function () {
       console.log("fetch genre set");
+    };
+
+    console.log(Sound);
+    console.log(Sound.MAIN_BUNDLE);
+
+    _this.playSoundBundle = function () {
+      var s = new Sound('getup.mp3', Sound.MAIN_BUNDLE, function (e) {
+        if (e) {
+          console.log('error', e);
+        } else {
+          s.setSpeed(1);
+          console.log('duration', s.getDuration());
+          s.play(function () {
+            return s.release();
+          });
+        }
+      });
     };
 
     _this.state = {
@@ -59259,6 +59278,12 @@ var HomeModule = function (_Component) {
           title: "Get sound",
           color: "#841584",
           accessibilityLabel: "Get first sound of a selected genre"
+        }),
+        _react2.default.createElement(_reactNative.Button, {
+          onPress: this.playSoundBundle,
+          title: "Play",
+          color: "#841584",
+          accessibilityLabel: "Play music"
         })
       );
     }
@@ -59271,6 +59296,193 @@ HomeModule.navigationOptions = {
 };
 exports.default = HomeModule;
 }, 524, null, "maelstorm/bin/modules/home/Home.module.js");
+__d(/* react-native-sound/sound.js */function(global, require, module, exports) {'use strict';
+
+var RNSound = require(13            ).NativeModules.RNSound; // 13 = react-native
+var IsAndroid = RNSound.IsAndroid;
+var resolveAssetSource = require(239                                              ); // 239 = react-native/Libraries/Image/resolveAssetSource
+var nextKey = 0;
+
+function isRelativePath(path) {
+  return !/^\//.test(path);
+}
+
+function Sound(filename, basePath, onError) {
+  var _this = this;
+
+  var asset = resolveAssetSource(filename);
+  if (asset) {
+    this._filename = asset.uri;
+    onError = basePath;
+  } else {
+    this._filename = basePath ? basePath + '/' + filename : filename;
+
+    if (IsAndroid && !basePath && isRelativePath(filename)) {
+      this._filename = filename.toLowerCase().replace(/\.[^.]+$/, '');
+    }
+  }
+
+  this._loaded = false;
+  this._key = nextKey++;
+  this._duration = -1;
+  this._numberOfChannels = -1;
+  this._volume = 1;
+  this._pan = 0;
+  this._numberOfLoops = 0;
+  this._speed = 1;
+  RNSound.prepare(this._filename, this._key, function (error, props) {
+    if (props) {
+      if (typeof props.duration === 'number') {
+        _this._duration = props.duration;
+      }
+      if (typeof props.numberOfChannels === 'number') {
+        _this._numberOfChannels = props.numberOfChannels;
+      }
+    }
+    if (error === null) {
+      _this._loaded = true;
+    }
+    onError && onError(error);
+  });
+}
+
+Sound.prototype.isLoaded = function () {
+  return this._loaded;
+};
+
+Sound.prototype.play = function (onEnd) {
+  if (this._loaded) {
+    RNSound.play(this._key, function (successfully) {
+      return onEnd && onEnd(successfully);
+    });
+  }
+  return this;
+};
+
+Sound.prototype.pause = function () {
+  if (this._loaded) {
+    RNSound.pause(this._key);
+  }
+  return this;
+};
+
+Sound.prototype.stop = function () {
+  if (this._loaded) {
+    RNSound.stop(this._key);
+  }
+  return this;
+};
+
+Sound.prototype.release = function () {
+  if (this._loaded) {
+    RNSound.release(this._key);
+  }
+  return this;
+};
+
+Sound.prototype.getDuration = function () {
+  return this._duration;
+};
+
+Sound.prototype.getNumberOfChannels = function () {
+  return this._numberOfChannels;
+};
+
+Sound.prototype.getVolume = function () {
+  return this._volume;
+};
+
+Sound.prototype.setVolume = function (value) {
+  this._volume = value;
+  if (this._loaded) {
+    if (IsAndroid) {
+      RNSound.setVolume(this._key, value, value);
+    } else {
+      RNSound.setVolume(this._key, value);
+    }
+  }
+  return this;
+};
+
+Sound.prototype.getPan = function () {
+  return this._pan;
+};
+
+Sound.prototype.setPan = function (value) {
+  if (this._loaded) {
+    RNSound.setPan(this._key, this._pan = value);
+  }
+  return this;
+};
+
+Sound.prototype.getNumberOfLoops = function () {
+  return this._numberOfLoops;
+};
+
+Sound.prototype.setNumberOfLoops = function (value) {
+  this._numberOfLoops = value;
+  if (this._loaded) {
+    if (IsAndroid) {
+      RNSound.setLooping(this._key, !!value);
+    } else {
+      RNSound.setNumberOfLoops(this._key, value);
+    }
+  }
+  return this;
+};
+
+Sound.prototype.setSpeed = function (value) {
+  this._setSpeed = value;
+  if (this._loaded) {
+    if (!IsAndroid) {
+      RNSound.setSpeed(this._key, value);
+    }
+  }
+  return this;
+};
+
+Sound.prototype.getCurrentTime = function (callback) {
+  if (this._loaded) {
+    RNSound.getCurrentTime(this._key, callback);
+  }
+};
+
+Sound.prototype.setCurrentTime = function (value) {
+  if (this._loaded) {
+    RNSound.setCurrentTime(this._key, value);
+  }
+  return this;
+};
+
+Sound.prototype.setCategory = function (value) {
+  Sound.setCategory(value, false);
+};
+
+Sound.enable = function (enabled) {
+  RNSound.enable(enabled);
+};
+
+Sound.enableInSilenceMode = function (enabled) {
+  if (!IsAndroid) {
+    RNSound.enableInSilenceMode(enabled);
+  }
+};
+
+Sound.setCategory = function (value) {
+  var mixWithOthers = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+  if (!IsAndroid) {
+    RNSound.setCategory(value, mixWithOthers);
+  }
+};
+
+Sound.MAIN_BUNDLE = RNSound.MainBundlePath;
+Sound.DOCUMENT = RNSound.NSDocumentDirectory;
+Sound.LIBRARY = RNSound.NSLibraryDirectory;
+Sound.CACHES = RNSound.NSCachesDirectory;
+
+module.exports = Sound;
+}, 529, null, "react-native-sound/sound.js");
 __d(/* maelstorm/bin/core/store.js */function(global, require, module, exports) {Object.defineProperty(exports, "__esModule", {
   value: true
 });
