@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Text, Picker } from "react-native";
+import { View, Text, Picker, Button } from "react-native";
 
 
 const Item = Picker.Item;
@@ -34,21 +34,26 @@ export default class HomeModule extends Component {
 
   }
 
+  static navigationOptions = {
+    title : "Home Module"
+  };
+
   _onGenreSelect = genreId => {
     console.log("genreId selected => ", genreId);
     this.setState({ ...this.state, defaultGenre : { ...this.state.defaultGenre, value : genreId } })
   };
 
-  static navigationOptions = {
-    title : "Home Module"
+  _fetchGenreSet = () => {
+    console.log("fetch genre set");
   };
+
+
 
   render() {
     return (
       <View>
-        <Text>Home Module content</Text>
 
-
+        <Text>Select a music genre</Text>
         <Picker
           selectedValue={this.state.defaultGenre.value}
           onValueChange={this._onGenreSelect}>
@@ -56,6 +61,14 @@ export default class HomeModule extends Component {
           <Picker.Item label={ genres.country.label } value={ genres.country.value } />
           <Picker.Item label={ genres.electronic.label } value={ genres.electronic.value } />
         </Picker>
+
+
+        <Button
+          onPress={this._fetchGenreSet}
+          title="Get sound"
+          color="#841584"
+          accessibilityLabel="Get first sound of a selected genre"
+        />
 
       </View>
     )

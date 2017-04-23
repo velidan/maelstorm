@@ -59220,6 +59220,10 @@ var HomeModule = function (_Component) {
       _this.setState(babelHelpers.extends({}, _this.state, { defaultGenre: babelHelpers.extends({}, _this.state.defaultGenre, { value: genreId }) }));
     };
 
+    _this._fetchGenreSet = function () {
+      console.log("fetch genre set");
+    };
+
     _this.state = {
       defaultGenre: {
         label: "Rock",
@@ -59239,7 +59243,7 @@ var HomeModule = function (_Component) {
         _react2.default.createElement(
           _reactNative.Text,
           null,
-          "Home Module content"
+          "Select a music genre"
         ),
         _react2.default.createElement(
           _reactNative.Picker,
@@ -59249,7 +59253,13 @@ var HomeModule = function (_Component) {
           _react2.default.createElement(_reactNative.Picker.Item, { label: genres.rock.label, value: genres.rock.value }),
           _react2.default.createElement(_reactNative.Picker.Item, { label: genres.country.label, value: genres.country.value }),
           _react2.default.createElement(_reactNative.Picker.Item, { label: genres.electronic.label, value: genres.electronic.value })
-        )
+        ),
+        _react2.default.createElement(_reactNative.Button, {
+          onPress: this._fetchGenreSet,
+          title: "Get sound",
+          color: "#841584",
+          accessibilityLabel: "Get first sound of a selected genre"
+        })
       );
     }
   }]);
