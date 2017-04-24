@@ -4,7 +4,8 @@ import { Provider } from 'react-redux';
 import AppNavigationWrapper from "./AppNavigationWrapper";
 
 
-import store from "../store";
+import storeCreator from "../storeCreator";
+const store = storeCreator();
 
 export default class App extends Component {
   render() {

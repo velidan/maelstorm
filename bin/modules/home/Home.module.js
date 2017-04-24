@@ -1,8 +1,11 @@
-import React, { Component } from "react";
+import React, { Component, PropTypes } from "react";
+import { connect } from 'react-redux'
 import { View, Text, Picker, Button } from "react-native";
 
 const Sound = require('react-native-sound');
 
+
+import { fetchGenreAction } from "./actions";
 
 const Item = Picker.Item;
 
@@ -22,11 +25,13 @@ const genres = {
 };
 
 
-export default class HomeModule extends Component {
+class HomeModule extends Component {
 
   constructor(props) {
     super(props);
 
+
+    this.props.fetchGenreAction();
 
     console.log(Sound);
     console.log(Sound.MAIN_BUNDLE);
@@ -141,3 +146,17 @@ export default class HomeModule extends Component {
     )
   }
 }
+
+HomeModule.propTypes = {
+  fetchGenreAction : PropTypes.func.isRequired
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    fetchGenreAction : () => {
+      dispatch(fetchGenreAction());
+    }
+  }
+};
+
+export default connect(undefined, mapDispatchToProps)(HomeModule);
