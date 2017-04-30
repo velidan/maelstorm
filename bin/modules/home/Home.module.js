@@ -5,7 +5,7 @@ import { View, Text, Picker, Button } from "react-native";
 const Sound = require('react-native-sound');
 
 
-import { fetchGenreAction } from "./actions";
+import { fetchGenreSoundsAction, fetchGenreAction } from "./actions";
 
 const Item = Picker.Item;
 
@@ -31,10 +31,10 @@ class HomeModule extends Component {
     super(props);
 
 
-    this.props.fetchGenreAction();
+   // this.props.fetchGenreAction();
 
-    console.log(Sound);
-    console.log(Sound.MAIN_BUNDLE);
+   // console.log(Sound);
+    //console.log(Sound.MAIN_BUNDLE);
 
     this.playSoundBundle = () => {
       const s = new Sound('getup.mp3', Sound.MAIN_BUNDLE, (e) => {
@@ -110,7 +110,12 @@ class HomeModule extends Component {
   };
 
   _fetchGenreSet = () => {
-    console.log("fetch genre set");
+    this.props.fetchGenreAction();
+  };
+
+  _fetchSoundsByGenre = () => {
+    const genreId = 12; // TODO: should get it from the genre selector
+    this.props.fetchGenreSoundsAction(genreId);
   };
 
 
@@ -131,10 +136,18 @@ class HomeModule extends Component {
 
         <Button
           onPress={this._fetchGenreSet}
+          title="Get genres"
+          color="#841584"
+          accessibilityLabel="Get music Genres"
+        />
+
+        <Button
+          onPress={this._fetchSoundsByGenre}
           title="Get sound"
           color="#841584"
           accessibilityLabel="Get first sound of a selected genre"
         />
+
         <Button
           onPress={this.playSoundBundle}
           title="Play"
@@ -148,12 +161,16 @@ class HomeModule extends Component {
 }
 
 HomeModule.propTypes = {
+  fetchGenreSoundsAction : PropTypes.func.isRequired,
   fetchGenreAction : PropTypes.func.isRequired
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    fetchGenreAction : () => {
+    fetchGenreSoundsAction : genreId => {
+      dispatch(fetchGenreSoundsAction(genreId));
+    },
+    fetchGenreAction : genreId => {
       dispatch(fetchGenreAction());
     }
   }
