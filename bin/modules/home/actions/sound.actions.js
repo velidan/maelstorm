@@ -54,14 +54,10 @@ export function  fetchGenreSoundsAction(genreId) {
 
     dispatch(fetchDataInitAction());
 
-    return fetch(`https://files.freemusicarchive.org/music/Music_for_Video/Mscaras/Mscara_vs_Mscara/Mscaras_-_05_-_NewYorican.mp3`,{
-      method: 'GET',
-      headers: {
-        'Accept': 'application/octet-stream',
-        'Content-Type': 'application/octet-stream',
-      }})
+    return fetch(`https://freemusicarchive.org/api/get/tracks.json?api_key=KUC6IU4SGXXY11AP&genre_id=${genreId}`)
+      .then((response) => response.json())
       .then(responseJson => {
-        console.log("responseJson => ", responseJson);
+        console.log(responseJson);
         return responseJson;
       })
       .catch((error) => {

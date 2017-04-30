@@ -1,6 +1,8 @@
 import React, { Component, PropTypes } from "react";
 import { connect } from 'react-redux'
-import { View, Text, Picker, Button } from "react-native";
+import { View, Text, Picker, Button , PermissionsAndroid} from "react-native";
+
+import RNFetchBlob from 'react-native-fetch-blob'
 
 const Sound = require('react-native-sound');
 
@@ -47,6 +49,62 @@ class HomeModule extends Component {
         }
       });
     };
+
+
+
+    RNFetchBlob
+      .config({
+        fileCache : true,
+        // by adding this option, the temp files will have a file extension
+        appendExt : 'mp3'
+      })
+      .fetch('GET', 'https://files.freemusicarchive.org/music/Music_for_Video/Mscaras/Mscara_vs_Mscara/Mscaras_-_05_-_NewYorican.mp3', {
+        "Content-Type" : "application/octet-stream"
+      })
+      .then((res) => {
+        // the temp file path with file extension `png`
+        console.log('The file saved to ', res.path());
+
+        this.playSoundBundle = () => {
+          const s = new Sound(res.path(), '', (e) => {
+            if (e) {
+              console.log('error', e);
+            } else {
+              s.setSpeed(1);
+              console.log('duration', s.getDuration());
+              s.play(() => s.release()); // Release when it's done so we're not using up resources
+            }
+          });
+        };
+
+        this.playSoundBundle();
+
+        // Beware that when using a file path as Image source on Android,
+        // you must prepend "file://"" before the file path
+
+      });
+
+    async function requestCameraPermission() {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.CAMERA,
+          {
+            'title': 'Cool Photo App Camera Permission',
+            'message': 'Cool Photo App needs access to your camera ' +
+            'so you can take awesome pictures.'
+          }
+        )
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log("You can use the camera")
+        } else {
+          console.log("Camera permission denied")
+        }
+      } catch (err) {
+        console.warn(err)
+      }
+    }
+
+    requestCameraPermission();
 
     // this.playSoundLooped = () => {
     //   if (this.state.loopingSound) {
