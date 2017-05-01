@@ -7,7 +7,7 @@ import RNFetchBlob from 'react-native-fetch-blob'
 const Sound = require('react-native-sound');
 
 
-import { fetchGenreSoundsAction, fetchGenreAction } from "./actions";
+import { fetchGenreSoundsAction, fetchGenreAction, fetchSoundInfoAction } from "./actions";
 
 const Item = Picker.Item;
 
@@ -33,6 +33,10 @@ class HomeModule extends Component {
     super(props);
 
 
+
+
+
+
    // this.props.fetchGenreAction();
 
    // console.log(Sound);
@@ -52,65 +56,65 @@ class HomeModule extends Component {
 
 
 
-    RNFetchBlob
-      .config({
-        fileCache : true,
-        // by adding this option, the temp files will have a file extension
-        appendExt : 'mp3',
-        path : "/sdcard/Music/some.mp3"
-      })
-      .fetch('GET', 'https://files.freemusicarchive.org/music/Music_for_Video/Mscaras/Mscara_vs_Mscara/Mscaras_-_05_-_NewYorican.mp3', {
-        "Content-Type" : "application/octet-stream"
-      })
-      .progress({ count : 10 }, (received, total) => {
-        console.log('progress', received / total)
-      })
-      .then((res) => {
-        RNFetchBlob.fs.scanFile([ { path : res.path(), mime : 'audio/mpeg' } ])
-      console.log("ress ====>>", res);
-        // the temp file path with file extension `png`
-        console.log('The file saved to ', res.path());
+    // RNFetchBlob
+    //   .config({
+    //     fileCache : true,
+    //     // by adding this option, the temp files will have a file extension
+    //     appendExt : 'mp3',
+    //     path : "/sdcard/Music/some.mp3"
+    //   })
+    //   .fetch('GET', 'https://files.freemusicarchive.org/music/Music_for_Video/Mscaras/Mscara_vs_Mscara/Mscaras_-_05_-_NewYorican.mp3', {
+    //     "Content-Type" : "application/octet-stream"
+    //   })
+    //   .progress({ count : 10 }, (received, total) => {
+    //     console.log('progress', received / total)
+    //   })
+    //   .then((res) => {
+    //     RNFetchBlob.fs.scanFile([ { path : res.path(), mime : 'audio/mpeg' } ])
+    //   console.log("ress ====>>", res);
+    //     // the temp file path with file extension `png`
+    //     console.log('The file saved to ', res.path());
+    //
+    //     this.playSoundBundle = () => {
+    //       const s = new Sound(res.path(), '', (e) => {
+    //         if (e) {
+    //           console.log('error', e);
+    //         } else {
+    //           s.setSpeed(1);
+    //           console.log('duration', s.getDuration());
+    //           s.play(() => s.release()); // Release when it's done so we're not using up resources
+    //         }
+    //       });
+    //     };
+    //
+    //     this.playSoundBundle();
+    //
+    //     // Beware that when using a file path as Image source on Android,
+    //     // you must prepend "file://"" before the file path
+    //
+    //   });
 
-        this.playSoundBundle = () => {
-          const s = new Sound(res.path(), '', (e) => {
-            if (e) {
-              console.log('error', e);
-            } else {
-              s.setSpeed(1);
-              console.log('duration', s.getDuration());
-              s.play(() => s.release()); // Release when it's done so we're not using up resources
-            }
-          });
-        };
-
-        this.playSoundBundle();
-
-        // Beware that when using a file path as Image source on Android,
-        // you must prepend "file://"" before the file path
-
-      });
-
-    async function requestCameraPermission() {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.CAMERA,
-          {
-            'title': 'Cool Photo App Camera Permission',
-            'message': 'Cool Photo App needs access to your camera ' +
-            'so you can take awesome pictures.'
-          }
-        )
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log("You can use the camera")
-        } else {
-          console.log("Camera permission denied")
-        }
-      } catch (err) {
-        console.warn(err)
-      }
-    }
-
-    requestCameraPermission();
+    // async function requestCameraPermission() {
+    //   try {
+    //     const granted = await PermissionsAndroid.request(
+    //       PermissionsAndroid.PERMISSIONS.CAMERA,
+    //       {
+    //         'title': 'Cool Photo App Camera Permission',
+    //         'message': 'Cool Photo App needs access to your camera ' +
+    //         'so you can take awesome pictures.'
+    //       }
+    //     )
+    //     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+    //       console.log("You can use the camera")
+    //     } else {
+    //       console.log("Camera permission denied")
+    //     }
+    //   } catch (err) {
+    //     console.warn(err)
+    //   }
+    // }
+    //
+    // requestCameraPermission();
 
     // this.playSoundLooped = () => {
     //   if (this.state.loopingSound) {
@@ -179,7 +183,54 @@ class HomeModule extends Component {
 
   _fetchSoundsByGenre = () => {
     const genreId = 12; // TODO: should get it from the genre selector
-    this.props.fetchGenreSoundsAction(genreId);
+    this.props.fetchGenreSoundsAction(genreId)
+      .then(res => res.dataset[Math.floor(Math.random() * 20) + 0].track_id)
+      .then(trackId => this.props.fetchSoundInfoAction(trackId))
+      .then(trackInfo => {
+        console.log("trackInfo => ", trackInfo)
+
+        RNFetchBlob
+          .config({
+            fileCache : true,
+            // by adding this option, the temp files will have a file extension
+            appendExt : 'mp3',
+            path : "/sdcard/Music/some.mp3"
+          })
+          .fetch('GET', `https://files.freemusicarchive.org/${trackInfo.dataset[0].track_file}`, {
+            "Content-Type" : "application/octet-stream"
+          })
+          .progress({ count : 10 }, (received, total) => {
+            console.log('progress', received / total)
+          })
+          .then((res) => {
+            RNFetchBlob.fs.scanFile([ { path : res.path(), mime : 'audio/mpeg' } ]);
+          console.log("ress ====>>", res);
+            // the temp file path with file extension `png`
+            console.log('The file saved to ', res.path());
+
+            this.playSoundBundle = () => {
+              const s = new Sound(res.path(), '', (e) => {
+                if (e) {
+                  console.log('error', e);
+                } else {
+                  s.setSpeed(1);
+                  console.log('duration', s.getDuration());
+                  s.play(() => s.release()); // Release when it's done so we're not using up resources
+                }
+              });
+            };
+
+            this.playSoundBundle();
+
+            // Beware that when using a file path as Image source on Android,
+            // you must prepend "file://"" before the file path
+
+          });
+
+      })
+
+    //fetchSoundInfoAction
+
   };
 
 
@@ -208,14 +259,14 @@ class HomeModule extends Component {
         <Button
           onPress={this._fetchSoundsByGenre}
           title="Get sound"
-          color="#841584"
+          color="#252830"
           accessibilityLabel="Get first sound of a selected genre"
         />
 
         <Button
           onPress={this.playSoundBundle}
           title="Play"
-          color="#841584"
+          color="#125793"
           accessibilityLabel="Play music"
         />
 
@@ -226,16 +277,20 @@ class HomeModule extends Component {
 
 HomeModule.propTypes = {
   fetchGenreSoundsAction : PropTypes.func.isRequired,
-  fetchGenreAction : PropTypes.func.isRequired
+  fetchGenreAction : PropTypes.func.isRequired,
+  fetchSoundInfoAction : PropTypes.func.isRequired
 };
 
 const mapDispatchToProps = dispatch => {
   return {
     fetchGenreSoundsAction : genreId => {
-      dispatch(fetchGenreSoundsAction(genreId));
+      return dispatch(fetchGenreSoundsAction(genreId));
     },
     fetchGenreAction : genreId => {
-      dispatch(fetchGenreAction());
+      return dispatch(fetchGenreAction());
+    },
+    fetchSoundInfoAction : trackId => {
+      return dispatch(fetchSoundInfoAction(trackId));
     }
   }
 };

@@ -2,7 +2,7 @@ import * as actionTypes from "./types";
 
 function fetchDataInitAction() {
   return {
-    type : actionTypes.GENRE_FETCH_DATA_INIT,
+    type : actionTypes.GENRE_SOUNDS_FETCH_DATA_INIT,
     payload : {
       data : null,
       pending : true,
@@ -14,7 +14,7 @@ function fetchDataInitAction() {
 function fetchDataSuccessAction(data) {
   console.log("-- data --");
   return {
-    type : actionTypes.GENRE_FETCH_DATA_SUCCESS,
+    type : actionTypes.GENRE_SOUNDS_FETCH_DATA_SUCCESS,
     payload : {
       data : data,
       pending : false,
@@ -26,7 +26,7 @@ function fetchDataSuccessAction(data) {
 function fetchDataFailAction() {
 
   return {
-    type : actionTypes.GENRE_FETCH_DATA_FAIL,
+    type : actionTypes.GENRE_SOUNDS_FETCH_DATA_FAIL,
     payload : {
       data : null,
       pending : false,
