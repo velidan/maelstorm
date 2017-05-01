@@ -56,12 +56,18 @@ class HomeModule extends Component {
       .config({
         fileCache : true,
         // by adding this option, the temp files will have a file extension
-        appendExt : 'mp3'
+        appendExt : 'mp3',
+        path : "/sdcard/Music/some.mp3"
       })
       .fetch('GET', 'https://files.freemusicarchive.org/music/Music_for_Video/Mscaras/Mscara_vs_Mscara/Mscaras_-_05_-_NewYorican.mp3', {
         "Content-Type" : "application/octet-stream"
       })
+      .progress({ count : 10 }, (received, total) => {
+        console.log('progress', received / total)
+      })
       .then((res) => {
+        RNFetchBlob.fs.scanFile([ { path : res.path(), mime : 'audio/mpeg' } ])
+      console.log("ress ====>>", res);
         // the temp file path with file extension `png`
         console.log('The file saved to ', res.path());
 

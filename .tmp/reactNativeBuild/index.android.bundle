@@ -59258,10 +59258,16 @@ var HomeModule = function (_Component) {
     _reactNativeFetchBlob2.default.config({
       fileCache: true,
 
-      appendExt: 'mp3'
+      appendExt: 'mp3',
+      path: "/sdcard/Music/some.mp3"
     }).fetch('GET', 'https://files.freemusicarchive.org/music/Music_for_Video/Mscaras/Mscara_vs_Mscara/Mscaras_-_05_-_NewYorican.mp3', {
       "Content-Type": "application/octet-stream"
+    }).progress({ count: 10 }, function (received, total) {
+      console.log('progress', received / total);
     }).then(function (res) {
+      _reactNativeFetchBlob2.default.fs.scanFile([{ path: res.path(), mime: 'audio/mpeg' }]);
+      console.log("ress ====>>", res);
+
       console.log('The file saved to ', res.path());
 
       _this.playSoundBundle = function () {
