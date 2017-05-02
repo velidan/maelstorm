@@ -178,7 +178,10 @@ class HomeModule extends Component {
   };
 
   _fetchGenreSet = () => {
-    this.props.fetchGenreAction();
+    this.props.fetchGenreAction()
+      .then(data => {
+        console.log("result data => ", data);
+      });
   };
 
   _fetchSoundsByGenre = () => {

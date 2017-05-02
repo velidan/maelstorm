@@ -12,8 +12,8 @@ const CONFIG =  {
     get apiGetUrl() {
       return `${this.protocol}://${this.host}/api/get`;
     },
-    get genresUrl() {
-      return `${this.apiGetUrl}/genres.${this.dataFormat}?api_key=${this.apiKey}&limit=${this.fetchLimit}`;
+    getGenresUrl(pageNumber = 0) {
+      return `${this.apiGetUrl}/genres.${this.dataFormat}?api_key=${this.apiKey}&limit=${this.fetchLimit}&page=${pageNumber}`;
     }
 
   }

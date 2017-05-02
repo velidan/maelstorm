@@ -1,0 +1,1 @@
+export { default as GENRES_REDUCER } from "./genre.reducer";
