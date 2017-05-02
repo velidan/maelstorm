@@ -1,6 +1,29 @@
-export default {
-  appApiKey : "KUC6IU4SGXXY11AP"
-}
+const CONFIG =  {
+
+  FMA : {
+    apiKey: "KUC6IU4SGXXY11AP",
+    fetchLimit: 50,
+    dataFormat : "json",
+    protocol: "https",
+    host : "freemusicarchive.org",
+    get filesHost() {
+     return `${this.protocol}://files.${this.host}`;
+    },
+    get apiGetUrl() {
+      return `${this.protocol}://${this.host}/api/get`;
+    },
+    get genresUrl() {
+      return `${this.apiGetUrl}/genres.${this.dataFormat}?api_key=${this.apiKey}&limit=${this.fetchLimit}`;
+    }
+
+  }
+
+
+
+};
+
+export default CONFIG;
+
 
 //https://freemusicarchive.org/api/get/tracks.json?api_key=KUC6IU4SGXXY11AP&genre_id=12
 

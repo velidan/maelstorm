@@ -1,3 +1,4 @@
+import Config from "bin/config";
 import * as actionTypes from "./types";
 
 function fetchDataInitAction() {
@@ -54,7 +55,7 @@ export function  fetchGenreAction() {
 
     dispatch(fetchDataInitAction());
 
-    return fetch('https://freemusicarchive.org/api/get/genres.json?api_key=KUC6IU4SGXXY11AP')
+    return fetch(Config.FMA.genresUrl)
       .then((response) => response.json())
       .then(responseJson => {
         console.log(responseJson);
