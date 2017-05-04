@@ -11,20 +11,6 @@ import { fetchGenreSoundsAction, fetchGenreAction, fetchSoundInfoAction } from "
 
 const Item = Picker.Item;
 
-const genres = {
-  rock : {
-    label : "Rock",
-    value : "12"
-  },
-  electronic : {
-    label : "Electronic",
-    value : "15"
-  },
-  country : {
-    label : "Country",
-    value : "9"
-  },
-};
 
 
 class HomeModule extends Component {
@@ -161,9 +147,10 @@ class HomeModule extends Component {
 
     this.state = {
       defaultGenre : {
-        label : "Rock",
-        value : "12"
-      }
+        label : "Loading music genres...",
+        value : 0
+      },
+      isGenresLoaded : false
     }
 
   }
@@ -235,7 +222,46 @@ class HomeModule extends Component {
     //fetchSoundInfoAction
 
   };
+//   const genres = {
+//   rock : {
+//     label : "Rock",
+//     value : "12"
+//   },
+//   electronic : {
+//     label : "Electronic",
+//     value : "15"
+//   },
+//   country : {
+//     label : "Country",
+//     value : "9"
+//   },
+// };
 
+
+  // shouldComponentUpdate(nextProps) {
+  //   return nextProps.parentGenres.length;
+  // }
+
+
+
+  componentDidMount() {
+    this._fetchGenreSet();
+  };
+
+  _generateGenres = () => {
+    const PARENT_GENRES = this.props.parentGenres;
+    let res = ( <Picker.Item
+      label={ this.state.defaultGenre.label }
+      value={ this.state.defaultGenre.value } /> );
+
+    if (PARENT_GENRES.length) {
+      res = PARENT_GENRES.map(genre => (
+             <Picker.Item label={ genre.genre_title } value={ genre.genre_id } key={ genre.genre_id } />)
+            );
+    }
+
+    return res;
+  };
 
 
   render() {
@@ -246,9 +272,7 @@ class HomeModule extends Component {
         <Picker
           selectedValue={this.state.defaultGenre.value}
           onValueChange={this._onGenreSelect}>
-          <Picker.Item label={ genres.rock.label } value={ genres.rock.value } />
-          <Picker.Item label={ genres.country.label } value={ genres.country.value } />
-          <Picker.Item label={ genres.electronic.label } value={ genres.electronic.value } />
+          { this._generateGenres() }
         </Picker>
 
 
@@ -279,9 +303,18 @@ class HomeModule extends Component {
 }
 
 HomeModule.propTypes = {
+  parentGenres : PropTypes.array.isRequired,
+
   fetchGenreSoundsAction : PropTypes.func.isRequired,
   fetchGenreAction : PropTypes.func.isRequired,
   fetchSoundInfoAction : PropTypes.func.isRequired
+};
+
+const mapStateToProps = state => {
+  console.log("state ==> ", state);
+  return {
+    parentGenres : state.genres.parents
+  }
 };
 
 const mapDispatchToProps = dispatch => {
@@ -298,4 +331,4 @@ const mapDispatchToProps = dispatch => {
   }
 };
 
-export default connect(undefined, mapDispatchToProps)(HomeModule);
+export default connect(mapStateToProps, mapDispatchToProps)(HomeModule);

@@ -1,9 +1,39 @@
+import _unionBy from "lodash/unionBy";
+
 import * as actionTypes from "../actions/types";
 
 const INITIAL_STATE = {
-  rawData : null,
-  pending : false
+  parents : [],
+  children : [],
+  pending : false,
+  error : null
 };
+
+/**
+ * split a raw genres dataset to parent genres and children
+ * @param genresList
+ * @returns {{children, parents}}
+ */
+function splitGenresToParentAndChild(genresList) {
+  let children = [];
+  let parents = [];
+
+    genresList.forEach(genreItem => {
+      if (!genreItem.genre_parent_id) {
+        parents.push(genreItem);
+      } else {
+        children.push(genreItem);
+      }
+    });
+
+
+    const UNIQUE_MARKER = "genre_handle";
+
+  return {
+    children : _unionBy(children, UNIQUE_MARKER),
+    parents : _unionBy(parents, UNIQUE_MARKER)
+  };
+}
 
 const genres = (state = INITIAL_STATE, action) => {
   switch (action.type) {
@@ -11,16 +41,15 @@ const genres = (state = INITIAL_STATE, action) => {
       return { ...state, pending : action.meta.pending };
       break;
     case actionTypes.GENRE_FETCH_DATA_FAIL:
-      console.log(action);
-      return state;
+      return { ...state, pending : action.meta.pending };
       break;
     case actionTypes.GENRE_FETCH_DATA_ERROR:
-      console.log(action);
-      return state;
+      return { ...state, pending : action.meta.pending, error : action.meta.error };
       break;
     case actionTypes.GENRE_FETCH_DATA_SUCCESS:
-      console.log(action);
-      return state;
+      const GENRES_COLLECTION = splitGenresToParentAndChild(action.payload.data);
+      return  { ...state,  parents : GENRES_COLLECTION.parents
+              , children : GENRES_COLLECTION.children, pending : action.meta.pending };
       break;
     default:
       return state;
