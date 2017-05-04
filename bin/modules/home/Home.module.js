@@ -271,7 +271,8 @@ class HomeModule extends Component {
         <Text>Select a music genre</Text>
         <Picker
           selectedValue={this.state.defaultGenre.value}
-          onValueChange={this._onGenreSelect}>
+          onValueChange={this._onGenreSelect}
+          >
           { this._generateGenres() }
         </Picker>
 
