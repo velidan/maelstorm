@@ -1,6 +1,11 @@
-import React, { Component, PropTypes } from "react";
+import React, { Component } from "react";
+import PropTypes from 'prop-types';
+
 import { connect } from 'react-redux'
-import { View, Text, Picker, Button , PermissionsAndroid} from "react-native";
+import { bindActionCreators } from "redux";
+import { View, Text, Picker, Button , ListView, StyleSheet , PermissionsAndroid} from "react-native";
+import PlaylistComponent from "../playlist/Playlist.component";
+
 
 import RNFetchBlob from 'react-native-fetch-blob'
 
@@ -17,7 +22,6 @@ class HomeModule extends Component {
 
   constructor(props) {
     super(props);
-
 
 
 
@@ -146,11 +150,12 @@ class HomeModule extends Component {
 
 
     this.state = {
-      defaultGenre : {
+      selectedGenre : {
         label : "Loading music genres...",
         value : 0
       },
-      isGenresLoaded : false
+      isGenresLoaded : false,
+      playlistTrackCount : 20
     }
 
   }
@@ -159,15 +164,12 @@ class HomeModule extends Component {
     title : "Home Module"
   };
 
-  _onGenreSelect = genreId => {
-    console.log("genreId selected => ", genreId);
-    this.setState({ ...this.state, defaultGenre : { ...this.state.defaultGenre, value : genreId } })
-  };
+
 
   _fetchGenreSet = () => {
     this.props.fetchGenreAction()
       .then(data => {
-        console.log("result data => ", data);
+        this.setState({  ...this.state, isGenresLoaded : true })
       });
   };
 
@@ -248,11 +250,16 @@ class HomeModule extends Component {
     this._fetchGenreSet();
   };
 
+  _onGenreSelect = genreId => {
+    console.log("genreId selected => ", genreId);
+    this.setState({ ...this.state, selectedGenre : { ...this.state.selectedGenre, value : genreId } })
+  };
+
   _generateGenres = () => {
     const PARENT_GENRES = this.props.parentGenres;
     let res = ( <Picker.Item
-      label={ this.state.defaultGenre.label }
-      value={ this.state.defaultGenre.value } /> );
+      label={ this.state.selectedGenre.label }
+      value={ this.state.selectedGenre.value } /> );
 
     if (PARENT_GENRES.length) {
       res = PARENT_GENRES.map(genre => (
@@ -263,6 +270,29 @@ class HomeModule extends Component {
     return res;
   };
 
+  _generatePlaylist = () => {
+    this.props.fetchGenreSoundsAction(this.state.selectedGenre.value, this.state.playlistTrackCount);
+  };
+
+
+  _downloadPlaylist = () => {
+    console.log("download playlist");
+  };
+
+  // _getPlaylistItems = () => {
+  //   let res = null;
+  //
+  //   const playlist = this.props.playlist;
+  //   if (playlist.length) {
+  //       let res = playlist.map(track => {
+  //         return (
+  //
+  //         )
+  //       })
+  //   }
+  //
+  // };
+
 
   render() {
     return (
@@ -270,7 +300,7 @@ class HomeModule extends Component {
 
         <Text>Select a music genre</Text>
         <Picker
-          selectedValue={this.state.defaultGenre.value}
+          selectedValue={this.state.selectedGenre.value}
           onValueChange={this._onGenreSelect}
           >
           { this._generateGenres() }
@@ -278,17 +308,18 @@ class HomeModule extends Component {
 
 
         <Button
-          onPress={this._fetchGenreSet}
-          title="Get genres"
+          onPress={this._downloadPlaylist}
+          title="Download playlist"
           color="#841584"
-          accessibilityLabel="Get music Genres"
+          accessibilityLabel="Donwnload the playlist"
         />
 
         <Button
-          onPress={this._fetchSoundsByGenre}
-          title="Get sound"
+          onPress={this._generatePlaylist}
+          title="Generate playlist"
+          disabled={ !this.state.isGenresLoaded }
           color="#252830"
-          accessibilityLabel="Get first sound of a selected genre"
+          accessibilityLabel="Generate the random playlist"
         />
 
         <Button
@@ -298,6 +329,9 @@ class HomeModule extends Component {
           accessibilityLabel="Play music"
         />
 
+
+       <PlaylistComponent playlistData = {this.props.sounds.playlist} />
+
       </View>
     )
   }
@@ -305,6 +339,7 @@ class HomeModule extends Component {
 
 HomeModule.propTypes = {
   parentGenres : PropTypes.array.isRequired,
+  sounds : PropTypes.object,
 
   fetchGenreSoundsAction : PropTypes.func.isRequired,
   fetchGenreAction : PropTypes.func.isRequired,
@@ -314,22 +349,17 @@ HomeModule.propTypes = {
 const mapStateToProps = state => {
   console.log("state ==> ", state);
   return {
-    parentGenres : state.genres.parents
+    parentGenres : state.genres.parents,
+    sounds : state.sounds
   }
 };
 
 const mapDispatchToProps = dispatch => {
-  return {
-    fetchGenreSoundsAction : genreId => {
-      return dispatch(fetchGenreSoundsAction(genreId));
-    },
-    fetchGenreAction : genreId => {
-      return dispatch(fetchGenreAction());
-    },
-    fetchSoundInfoAction : trackId => {
-      return dispatch(fetchSoundInfoAction(trackId));
-    }
-  }
+  return bindActionCreators({
+    fetchGenreSoundsAction : ( genreId, playlistTrackCount ) => fetchGenreSoundsAction(genreId, playlistTrackCount),
+    fetchGenreAction : genreId => fetchGenreAction(),
+    fetchSoundInfoAction : trackId => fetchSoundInfoAction(trackId)
+  }, dispatch)
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomeModule);

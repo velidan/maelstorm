@@ -14,6 +14,9 @@ const CONFIG =  {
     },
     getGenresUrl(pageNumber = 0) {
       return `${this.apiGetUrl}/genres.${this.dataFormat}?api_key=${this.apiKey}&limit=${this.fetchLimit}&page=${pageNumber}`;
+    },
+    getGenreSoundsUrl(genreId, pageNumber = 0) {
+      return `${this.apiGetUrl}/tracks.${this.dataFormat}?api_key=${this.apiKey}&genre_id=${genreId}&limit=${this.fetchLimit}&page=${pageNumber}`;
     }
 
   }
