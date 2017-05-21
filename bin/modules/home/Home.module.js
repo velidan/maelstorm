@@ -174,19 +174,19 @@ class HomeModule extends Component {
   };
 
   _fetchSoundsByGenre = () => {
-    const genreId = 12; // TODO: should get it from the genre selector
-    this.props.fetchGenreSoundsAction(genreId)
+    //const genreId = 12; // TODO: should get it from the genre selector
+    this.props.fetchGenreSoundsAction(this.state.selectedGenre.value)
       .then(res => res.dataset[Math.floor(Math.random() * 20) + 0].track_id)
       .then(trackId => this.props.fetchSoundInfoAction(trackId))
       .then(trackInfo => {
-        console.log("trackInfo => ", trackInfo)
+        console.log("trackInfo => ", trackInfo);
 
         RNFetchBlob
           .config({
             fileCache : true,
             // by adding this option, the temp files will have a file extension
             appendExt : 'mp3',
-            path : "/sdcard/Music/some.mp3"
+            path : `/sdcard/Music/${trackInfo.dataset[0].track_title}.mp3`
           })
           .fetch('GET', `https://files.freemusicarchive.org/${trackInfo.dataset[0].track_file}`, {
             "Content-Type" : "application/octet-stream"
@@ -277,6 +277,7 @@ class HomeModule extends Component {
 
   _downloadPlaylist = () => {
     console.log("download playlist");
+    this._fetchSoundsByGenre();
   };
 
   // _getPlaylistItems = () => {
