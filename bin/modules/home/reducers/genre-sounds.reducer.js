@@ -57,6 +57,10 @@ import * as actionTypes from "../actions/types";
  * @property { string | null } track_publisher
  * @property { string } track_title
  * @property { string } track_url - a track fma track url
+ *
+ * @property { boolean } loading - an indicator of the track loading state
+ * @property { number } loadingProgress - a progress of loading
+ * @property { boolean } ready - if track was loaded
  */
 
 
@@ -92,7 +96,7 @@ function getRandomTrackSet(min, max, randomItemCount, trackSet) {
 
       if (!randomIdSet.includes(trackSet[randomId].track_id) ) {
         randomIdSet.push(randomId);
-        resultSet.push(trackSet[randomId]);
+        resultSet.push({ ...trackSet[randomId], loading : false, ready : false, loadingProgress : 0  });
       }
 
       core()
@@ -130,6 +134,22 @@ const genres = (state = INITIAL_STATE, action) => {
         playlist : getRandomTrackSet(0 , soundsSet.length, action.payload.playlistTrackCount, soundsSet)
       };
       break;
+
+    case actionTypes.SOUND_DOWNLOAD_INIT:
+      console.log(state);
+      debugger;
+      const updatedPlaylist = state.playlist.map(trackData => {
+        let res = trackData;
+
+        if (trackData.track_id === action.payload.data) {
+          res = { ...trackData, loading : action.meta.pending  }
+        }
+        return res;
+      });
+
+      return { ...state, playlist : updatedPlaylist };
+      break;
+
     default:
       return state;
       break;

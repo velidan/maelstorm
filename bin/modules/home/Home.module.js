@@ -12,7 +12,8 @@ import RNFetchBlob from 'react-native-fetch-blob'
 const Sound = require('react-native-sound');
 
 
-import { fetchGenreSoundsAction, fetchGenreAction, fetchSoundInfoAction } from "./actions";
+import { fetchGenreSoundsAction, fetchGenreAction, fetchSoundInfoAction,
+  downloadSoundAction} from "./actions";
 
 const Item = Picker.Item;
 
@@ -155,7 +156,7 @@ class HomeModule extends Component {
         value : 0
       },
       isGenresLoaded : false,
-      playlistTrackCount : 20
+      playlistTrackCount : 5
     }
 
   }
@@ -186,7 +187,7 @@ class HomeModule extends Component {
             fileCache : true,
             // by adding this option, the temp files will have a file extension
             appendExt : 'mp3',
-            path : `/sdcard/Music/${trackInfo.dataset[0].track_title}.mp3`
+            path : `/sdcard/Music/maelstorm/${trackInfo.dataset[0].track_title}.mp3`
           })
           .fetch('GET', `https://files.freemusicarchive.org/${trackInfo.dataset[0].track_file}`, {
             "Content-Type" : "application/octet-stream"
@@ -277,8 +278,55 @@ class HomeModule extends Component {
 
   _downloadPlaylist = () => {
     console.log("download playlist");
-    this._fetchSoundsByGenre();
+    //this._fetchSoundsByGenre();
+
+
+    let soundCounter = 0;
+    const playlistEndPoint = --this.state.playlistTrackCount;
+    const playlist = this.props.sounds.playlist;
+
+
+    this.props.downloadSoundAction(playlist[0], this.state.playlistTrackCount);
+
+    // let core = () => {
+    //   this._downloadSound(playlist[soundCounter])
+    //     .then((res) => {
+    //
+    //       RNFetchBlob.fs.scanFile([{path: res.path(), mime: 'audio/mpeg'}]);
+    //       console.log("ress ====>>", res);
+    //       // the temp file path with file extension `png`
+    //       console.log(`The file - №${soundCounter} saved to `, res.path());
+    //       soundCounter++;
+    //
+    //       if (soundCounter < playlistEndPoint) {
+    //         core();
+    //       } else {
+    //         console.info("PLAYLIST LOADED");
+    //       }
+    //
+    //     });
+    // };
+    //
+    // core();
+
   };
+
+  _downloadSound = soundInfo => {
+    return RNFetchBlob
+      .config({
+        fileCache : true,
+        // by adding this option, the temp files will have a file extension
+        appendExt : 'mp3',
+        path : `/sdcard/Music/${soundInfo.track_title}.mp3`
+      })
+      .fetch('GET', `https://files.freemusicarchive.org/${soundInfo.track_file}`, {
+        "Content-Type" : "application/octet-stream"
+      })
+      .progress({ count : 10 }, (received, total) => {
+        console.log('progress', received / total)
+      })
+  };
+
 
   // _getPlaylistItems = () => {
   //   let res = null;
@@ -310,6 +358,7 @@ class HomeModule extends Component {
 
         <Button
           onPress={this._downloadPlaylist}
+          disabled={ !this.props.sounds.playlist.length }
           title="Download playlist"
           color="#841584"
           accessibilityLabel="Donwnload the playlist"
@@ -344,7 +393,8 @@ HomeModule.propTypes = {
 
   fetchGenreSoundsAction : PropTypes.func.isRequired,
   fetchGenreAction : PropTypes.func.isRequired,
-  fetchSoundInfoAction : PropTypes.func.isRequired
+  fetchSoundInfoAction : PropTypes.func.isRequired,
+  downloadSoundAction : PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => {
@@ -359,7 +409,8 @@ const mapDispatchToProps = dispatch => {
   return bindActionCreators({
     fetchGenreSoundsAction : ( genreId, playlistTrackCount ) => fetchGenreSoundsAction(genreId, playlistTrackCount),
     fetchGenreAction : genreId => fetchGenreAction(),
-    fetchSoundInfoAction : trackId => fetchSoundInfoAction(trackId)
+    fetchSoundInfoAction : trackId => fetchSoundInfoAction(trackId),
+    downloadSoundAction : (trackInfo, playlistEndPoint) => downloadSoundAction(trackInfo, playlistEndPoint)
   }, dispatch)
 };
 

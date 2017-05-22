@@ -12,6 +12,10 @@ const styles = StyleSheet.create({
     marginLeft: 12,
     fontSize: 16,
   },
+  progress: {
+    marginLeft: 'auto',
+    fontSize: 16,
+  },
   photo: {
     height: 40,
     width: 40,
@@ -32,6 +36,12 @@ class PlayListRowComponent extends React.Component {
         <Text style={styles.text}>
           { this.props.track_title }
         </Text>
+
+        { this.props.loading && <Text style={ styles.progress }>
+          { this.props.loadingProgress + "%" }
+        </Text> }
+
+
       </View>
     );
   }
