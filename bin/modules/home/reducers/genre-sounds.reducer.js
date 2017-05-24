@@ -93,9 +93,10 @@ function getRandomTrackSet(min, max, randomItemCount, trackSet) {
   function core() {
     if ( randomIdSet.length < randomItemCount ) {
       const randomId = Math.floor(Math.random() *  max) + min;
+      const trackId = trackSet[randomId].track_id;
 
-      if (!randomIdSet.includes(trackSet[randomId].track_id) ) {
-        randomIdSet.push(randomId);
+      if (!randomIdSet.includes(trackId) ) {
+        randomIdSet.push(trackId);
         resultSet.push({ ...trackSet[randomId], loading : false, ready : false, loadingProgress : 0  });
       }
 
@@ -111,7 +112,21 @@ function getRandomTrackSet(min, max, randomItemCount, trackSet) {
 
 
 
+function soundDownloadHandler(playlist, action ) {
+  return playlist.map(trackData => {
+    let res = trackData;
 
+    if (trackData.track_id === action.payload.soundId) {
+      res = { ...trackData,
+        loading : action.meta.pending,
+        soundId : action.payload.soundId,
+        loadingProgress : action.payload.progressValue,
+        ready : action.payload.ready
+      }
+    }
+    return res;
+  });
+}
 
 
 
@@ -136,20 +151,37 @@ const genres = (state = INITIAL_STATE, action) => {
       break;
 
     case actionTypes.SOUND_DOWNLOAD_INIT:
-      console.log(state);
-      debugger;
-      const updatedPlaylist = state.playlist.map(trackData => {
+      return { ...state, playlist : soundDownloadHandler(state.playlist, action)  };
+      break;
+    case actionTypes.SOUND_DOWNLOAD_SUCCESS:
+
+    function uza(playlist, action ) {
+      return playlist.map(trackData => {
         let res = trackData;
 
-        if (trackData.track_id === action.payload.data) {
-          res = { ...trackData, loading : action.meta.pending  }
+        if (trackData.track_id === action.payload.soundId) {
+          res = { ...trackData,
+            loading : action.meta.pending,
+            soundId : action.payload.soundId,
+            loadingProgress : action.payload.progressValue,
+            ready : action.payload.ready
+          }
         }
         return res;
       });
+    }
 
-      return { ...state, playlist : updatedPlaylist };
+
+      //return { ...state, playlist : soundDownloadHandler(state.playlist, action)  };
+      return { ...state, playlist : uza(state.playlist, action)  };
       break;
-
+    case actionTypes.SOUND_DOWNLOAD_PROGRESS_CHANGE:
+      console.log("SOUND_DOWNLOAD_PROGRESS_CHANGE");
+      return { ...state, playlist : soundDownloadHandler(state.playlist, action)  };
+    case actionTypes.SOUND_DOWNLOAD_FAIL:
+      return { ...state, playlist : soundDownloadHandler(state.playlist, action)  };
+    case actionTypes.SOUND_DOWNLOAD_ERROR:
+      return { ...state, playlist : soundDownloadHandler(state.playlist, action)  };
     default:
       return state;
       break;

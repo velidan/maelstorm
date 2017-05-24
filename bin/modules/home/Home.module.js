@@ -282,11 +282,29 @@ class HomeModule extends Component {
 
 
     let soundCounter = 0;
-    const playlistEndPoint = --this.state.playlistTrackCount;
+    const playlistEndPoint = this.state.playlistTrackCount;
     const playlist = this.props.sounds.playlist;
 
 
-    this.props.downloadSoundAction(playlist[0], this.state.playlistTrackCount);
+
+
+    let core = () => {
+      this.props.downloadSoundAction((playlist[soundCounter]))
+        .then(() => {
+          soundCounter++;
+          if (soundCounter < playlistEndPoint) {
+            core();
+          } else {
+            console.info("PLAYLIST LOADED");
+          }
+
+        });
+    };
+
+    core();
+
+
+
 
     // let core = () => {
     //   this._downloadSound(playlist[soundCounter])
@@ -410,7 +428,7 @@ const mapDispatchToProps = dispatch => {
     fetchGenreSoundsAction : ( genreId, playlistTrackCount ) => fetchGenreSoundsAction(genreId, playlistTrackCount),
     fetchGenreAction : genreId => fetchGenreAction(),
     fetchSoundInfoAction : trackId => fetchSoundInfoAction(trackId),
-    downloadSoundAction : (trackInfo, playlistEndPoint) => downloadSoundAction(trackInfo, playlistEndPoint)
+    downloadSoundAction : trackInfo => downloadSoundAction(trackInfo)
   }, dispatch)
 };
 

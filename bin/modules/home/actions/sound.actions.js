@@ -8,7 +8,10 @@ function fetchDataInitAction(trackId) {
   return {
     type : actionTypes.SOUND_DOWNLOAD_INIT,
     payload : {
-      data : trackId
+      data : null,
+      soundId : trackId,
+      progressValue : 0,
+      ready : false
     },
     meta : {
       pending : true,
@@ -17,12 +20,14 @@ function fetchDataInitAction(trackId) {
   }
 }
 
-function fetchDataSuccessAction(data) {
-  console.log("-- data --");
+function fetchDataSuccessAction(soundId) {
   return {
     type : actionTypes.SOUND_DOWNLOAD_SUCCESS,
     payload : {
-      data : data
+      data : null,
+      soundId : soundId,
+      progressValue : 100,
+      ready : true
     },
     meta : {
       pending : false,
@@ -36,7 +41,10 @@ function fetchDataFailAction() {
   return {
     type : actionTypes.SOUND_DOWNLOAD_FAIL,
     payload : {
-      data : null
+      data : null,
+      soundId : null,
+      progressValue : 0,
+      ready : false
     },
     meta : {
       pending : false,
@@ -46,11 +54,13 @@ function fetchDataFailAction() {
 }
 
 function soundDownloadProgressChange(soundId, progressValue) {
-
   return {
     type : actionTypes.SOUND_DOWNLOAD_PROGRESS_CHANGE,
     payload : {
-      data : null
+      data : null,
+      soundId : soundId,
+      progressValue : progressValue,
+      ready : false
     },
     meta : {
       pending : true,
@@ -64,7 +74,10 @@ function fetchDataErrorAction(e) {
   return {
     type : actionTypes.SOUND_DOWNLOAD_ERROR,
     payload : {
-      data : null
+      data : null,
+      soundId : null,
+      progressValue : 0,
+      ready : false
     },
     meta : {
       pending : false,
@@ -74,23 +87,10 @@ function fetchDataErrorAction(e) {
 }
 
 
-function downloadSound( soundInfo ) {
-  return RNFetchBlob
-    .config({
-      fileCache : true,
-      // by adding this option, the temp files will have a file extension
-      appendExt : 'mp3',
-      path : `/sdcard/Music/${soundInfo.track_title}.mp3`
-    })
-    .fetch('GET', `https://files.freemusicarchive.org/${soundInfo.track_file}`, {
-      "Content-Type" : "application/octet-stream"
-    })
-};
 
 
-
-let soundCounter = 0;
-let endPoint;
+//let soundCounter = 0;
+//let endPoint;
 //const playlist = this.props.sounds.playlist;
 
 
@@ -117,32 +117,33 @@ let endPoint;
 // core();
 
 // works
-export function  downloadSoundAction(trackData, playListEndPoint) {
-  endPoint = --playListEndPoint;
+export function  downloadSoundAction(trackData) {
+  //endPoint = --playListEndPoint;
   return dispatch => {
     console.log("fetchSoundInfoAction, trackId => ", trackData.track_id);
 
     dispatch(fetchDataInitAction(trackData.track_id));
 
 
-      downloadSound(playlist[soundCounter])
+    return RNFetchBlob
+        .config({
+          fileCache : true,
+          // by adding this option, the temp files will have a file extension
+          appendExt : 'mp3',
+          path : `/sdcard/Music/${trackData.track_title}.mp3`
+        })
+        .fetch('GET', `https://files.freemusicarchive.org/${trackData.track_file}`, {
+          "Content-Type" : "application/octet-stream"
+        })
         .progress({ count : 10 }, (received, total) => {
-          console.log('progress', received / total);
-          dispatch(soundDownloadProgressChange(trackData.track_id, Math.ceil(received / total) ));
+          dispatch(soundDownloadProgressChange(trackData.track_id, Math.ceil(received / total * 100 )));
         })
         .then((res) => {
-
+          dispatch(fetchDataSuccessAction(trackData.track_id));
           RNFetchBlob.fs.scanFile([{path: res.path(), mime: 'audio/mpeg'}]);
           console.log("ress ====>>", res);
           // the temp file path with file extension `png`
-          console.log(`The file - №${soundCounter} saved to `, res.path());
-          soundCounter++;
-
-          if (soundCounter < endPoint) {
-            downloadSound(playlist[soundCounter]);
-          } else {
-            console.info("PLAYLIST LOADED");
-          }
+          console.log(`The file - ${trackData.track_title} saved to `, res.path());
 
         });
 
