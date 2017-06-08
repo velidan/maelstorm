@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
   },
   text: {
     marginLeft: 12,
-    marginRight: 50,
+    marginRight: 85,
     fontSize: 16,
   },
   progress: {

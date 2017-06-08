@@ -1,7 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 
 import {
-  AppRegistry,
   Text,
   Button,
   View,
@@ -16,9 +15,13 @@ import Form from 'react-native-form';
 
 export default class SignInComponent extends Component {
 
-  static navigationOptions = {
-    title: 'Entry screen 1',
+  static get navigationOptions() {
+    return {
+      title: 'Entry screen 1',
+    };
   };
+
+
 
   render() {
     const { navigate } = this.props.navigation;

@@ -20,12 +20,13 @@ function fetchDataInitAction(trackId) {
   }
 }
 
-function fetchDataSuccessAction(soundId) {
+function fetchDataSuccessAction(soundId, soundPath) {
   return {
     type : actionTypes.SOUND_DOWNLOAD_SUCCESS,
     payload : {
       data : null,
       soundId : soundId,
+      soundPath : soundPath,
       progressValue : 100,
       ready : true
     },
@@ -43,6 +44,7 @@ function fetchDataFailAction() {
     payload : {
       data : null,
       soundId : null,
+      soundPath : null,
       progressValue : 0,
       ready : false
     },
@@ -59,6 +61,7 @@ function soundDownloadProgressChange(soundId, progressValue) {
     payload : {
       data : null,
       soundId : soundId,
+      soundPath : null,
       progressValue : progressValue,
       ready : false
     },
@@ -76,6 +79,7 @@ function fetchDataErrorAction(e) {
     payload : {
       data : null,
       soundId : null,
+      soundPath : null,
       progressValue : 0,
       ready : false
     },
@@ -117,6 +121,16 @@ function fetchDataErrorAction(e) {
 // core();
 
 // works
+
+function toSnakeAndLowerCase(str) {
+  return str.replace(/.mp3/, "")
+    .replace(/-/, " ")
+    .split(" ")
+    .filter(el => el)
+    .map(el => el.toLowerCase())
+    .join("_");
+};
+
 export function  downloadSoundAction(trackData) {
   //endPoint = --playListEndPoint;
   return dispatch => {
@@ -130,7 +144,7 @@ export function  downloadSoundAction(trackData) {
           fileCache : true,
           // by adding this option, the temp files will have a file extension
           appendExt : 'mp3',
-          path : `/sdcard/Music/${trackData.track_title}.mp3`
+          path : `${Config.musicFolderPathAndroid}/${toSnakeAndLowerCase(trackData.track_title)}.mp3`
         })
         .fetch('GET', `https://files.freemusicarchive.org/${trackData.track_file}`, {
           "Content-Type" : "application/octet-stream"
@@ -139,7 +153,7 @@ export function  downloadSoundAction(trackData) {
           dispatch(soundDownloadProgressChange(trackData.track_id, Math.ceil(received / total * 100 )));
         })
         .then((res) => {
-          dispatch(fetchDataSuccessAction(trackData.track_id));
+          dispatch(fetchDataSuccessAction(trackData.track_id, res.path()));
           RNFetchBlob.fs.scanFile([{path: res.path(), mime: 'audio/mpeg'}]);
           console.log("ress ====>>", res);
           // the temp file path with file extension `png`

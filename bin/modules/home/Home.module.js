@@ -156,7 +156,8 @@ class HomeModule extends Component {
         value : 0
       },
       isGenresLoaded : false,
-      playlistTrackCount : 5
+      playlistTrackCount : 5,
+      isPlaylistReady : false
     }
 
   }
@@ -296,6 +297,10 @@ class HomeModule extends Component {
             core();
           } else {
             console.info("PLAYLIST LOADED");
+            this.setState({
+              ...this.state,
+              isPlaylistReady : true
+            })
           }
 
         });
@@ -329,21 +334,21 @@ class HomeModule extends Component {
 
   };
 
-  _downloadSound = soundInfo => {
-    return RNFetchBlob
-      .config({
-        fileCache : true,
-        // by adding this option, the temp files will have a file extension
-        appendExt : 'mp3',
-        path : `/sdcard/Music/${soundInfo.track_title}.mp3`
-      })
-      .fetch('GET', `https://files.freemusicarchive.org/${soundInfo.track_file}`, {
-        "Content-Type" : "application/octet-stream"
-      })
-      .progress({ count : 10 }, (received, total) => {
-        console.log('progress', received / total)
-      })
-  };
+  // _downloadSound = soundInfo => {
+  //   return RNFetchBlob
+  //     .config({
+  //       fileCache : true,
+  //       // by adding this option, the temp files will have a file extension
+  //       appendExt : 'mp3',
+  //       path : `/sdcard/Music/${soundInfo.track_title}.mp3`
+  //     })
+  //     .fetch('GET', `https://files.freemusicarchive.org/${soundInfo.track_file}`, {
+  //       "Content-Type" : "application/octet-stream"
+  //     })
+  //     .progress({ count : 10 }, (received, total) => {
+  //       console.log('progress', received / total)
+  //     })
+  // };
 
 
   // _getPlaylistItems = () => {
@@ -362,6 +367,9 @@ class HomeModule extends Component {
 
 
   render() {
+
+    const { navigate } = this.props.navigation;
+
     return (
       <View>
 
@@ -390,12 +398,19 @@ class HomeModule extends Component {
           accessibilityLabel="Generate the random playlist"
         />
 
-        <Button
-          onPress={this.playSoundBundle}
-          title="Play"
+        {/*<Button*/}
+          {/*onPress={this.playSoundBundle}*/}
+          {/*title="Play"*/}
+          {/*color="#125793"*/}
+          {/*accessibilityLabel="Play music"*/}
+        {/*/>*/}
+
+        {  this.state.isGenresLoaded &&  <Button
+          onPress={() => navigate('Player')}
+          title="Play all"
           color="#125793"
           accessibilityLabel="Play music"
-        />
+          /> }
 
 
        <PlaylistComponent playlistData = {this.props.sounds.playlist} />
@@ -408,7 +423,7 @@ class HomeModule extends Component {
 HomeModule.propTypes = {
   parentGenres : PropTypes.array.isRequired,
   sounds : PropTypes.object,
-
+  navigate : PropTypes.func,
   fetchGenreSoundsAction : PropTypes.func.isRequired,
   fetchGenreAction : PropTypes.func.isRequired,
   fetchSoundInfoAction : PropTypes.func.isRequired,

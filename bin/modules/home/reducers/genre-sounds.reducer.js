@@ -61,6 +61,7 @@ import * as actionTypes from "../actions/types";
  * @property { boolean } loading - an indicator of the track loading state
  * @property { number } loadingProgress - a progress of loading
  * @property { boolean } ready - if track was loaded
+ * @property { boolean } loadedFilePath - the loaded file path
  */
 
 
@@ -163,6 +164,7 @@ const genres = (state = INITIAL_STATE, action) => {
           res = { ...trackData,
             loading : action.meta.pending,
             soundId : action.payload.soundId,
+            loadedFilePath : action.payload.soundPath,
             loadingProgress : action.payload.progressValue,
             ready : action.payload.ready
           }
